@@ -37,11 +37,6 @@ public class UserProfileService {
         userProfile.setStatus(status);
         userProfile.setEmailId(emailid);
         userProfile.setProfilePhoto(base64Photo);
-        //testing S3 Upload
-        String filelocation = s3Uploader.uploadFile(profilephoto, "pace-jobs/daily-reports/test/filelocation.jpg");
-        System.out.println("------File Saved to this:" + filelocation);
-
-        System.out.println("Upload Details:" + userProfile);
 
         try {
             return mongoProfile.save(userProfile);
