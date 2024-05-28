@@ -1,99 +1,48 @@
 # High-Level Design Document for Chat Application
 
 ## Overview
-This document outlines the high-level design of a chat application, detailing its primary components, their interactions, and the data flow. The architecture leverages MongoDB for database management, Kafka for message brokering, Redis for session handling, and AWS S3 for file storage.
+This document outlines the high-level design of a chat application that leverages modern technologies including WebSockets, Kafka, Redis, MongoDB, and AWS S3. The application supports user profiles, group profiles, private messages, group messages, and file sharing with reliable message delivery using Kafka.
 
-## Components
+## Key Components
 
-### 1. Sign Up and Login
-This module handles user registration and authentication.
+1. **WebSockets**: Enables real-time communication for chat messages.
+2. **Kafka**: Ensures reliable delivery of messages to both online and offline users.
+3. **Redis**: Manages session states and ensures user authentication status.
+4. **MongoDB**: Stores user and group information.
+5. **AWS S3**: Handles file uploads and storage.
 
-#### Sign Up
-- **User Sign Up**: Collects user information such as email, name, password, and profile photo. Upon registration, a unique UUID is assigned to each user.
-- **Modify User Info**: Allows users to update their information except for the UUID, which is immutable.
+## Features
+
+### User Profiles
+- **Sign Up**: Users can create an account by providing an email, name, password, and profile photo. Upon registration, a unique UUID is assigned to each user.
+- **Login**: Users can authenticate themselves to access the chat application.
+- **Modify User Info**: Users can update their profile information except for the UUID, which is immutable.
 - **Fetch User Info**: Retrieves user details from the MongoDB database using the user’s email.
 - **Delete User**: Deletes a user from the system along with their associated data.
 
-#### Login
-- **Login**: Authenticates user credentials by matching the hashed password with the stored hash in the database. Upon success, a session is generated and stored in Redis, and a JWT is returned.
-- **Logout**: Terminates the user's session by deleting the UUID and JWT pair from Redis.
+### Group Profiles
+- **Create Group**: Users can create a group by providing a group name and profile photo.
+- **Group Info**: Stores group-related information including participants, group photo, and admins.
+- **Modify Group Info**: Allows updating group details except for the group UUID.
+- **Fetch Group Info**: Retrieves group details from the database using the group UUID.
+- **Delete Group**: Deletes a group from the system using the group UUID.
 
-### 2. MongoDB Database
-The database stores user and group information.
+### Messaging
+- **Private Messages**: One-to-one messaging using WebSockets and Kafka for real-time communication.
+- **Group Messages**: Group chat functionality using WebSockets and Kafka for real-time communication.
+- **Message Persistence**: Kafka ensures messages are persisted and delivered even if recipients are offline.
 
-#### UserInfo Collection
-- **Fields**:
-  1. EmailId
-  2. Name
-  3. Hashed Password
-  4. Profile Photo (base64 encoded)
-  5. Status
-  6. Activity (last seen timestamp)
-  7. Unique Id (UUID)
-  8. Group Ids (array of UUIDs)
-
-#### Groups Collection
-- **Fields**:
-  1. Group Id (UUID)
-  2. Participants (array of UUIDs)
-  3. Group Photo (base64 encoded)
-  4. Group Info
-
-### 3. Auth
-Handles authentication and authorization.
-- **Validate JWT for user**: Validates JSON Web Tokens to ensure secure access. This validation occurs in middleware before processing any requests.
-- **On Failure deny access**: Denies access if JWT validation fails.
-
-### 4. Session Handling
-Manages user sessions using Redis.
-- **Redis**: Used for maintaining session states and ensuring user authentication status.
-
-### 5. File Handling
-Handles file uploads and storage.
-- **Upload to S3**: Stores files in AWS S3.
-- **Send File**: Facilitates file sending functionality by generating and returning download URLs.
-
-### 6. Messaging
-Handles real-time messaging using Kafka.
-- **Message Body**:
-  1. Sender Id (UUID)
-  2. Recipient Id (UUID)
-  3. Topic (Kafka topic)
-  4. Message Body
-  5. File Download Link
-  6. Sent Timestamp
-  7. Delivery Status (sent/delivered/read)
-
-#### Group Chat
-- Users participate in group chats.
-- Kafka topics are used to manage message streams.
-- Messages persist even if recipients are offline, leveraging Kafka’s persistence capabilities.
-
-#### Private Chat
-- One-to-one messaging.
-- Kafka topics are used for private message streams.
-- Messages persist even if recipients are offline, leveraging Kafka’s persistence capabilities.
+### File Sharing
+- **Upload Files**: Users can upload files which are stored in AWS S3.
+- **Download Links**: Generates and returns download URLs for shared files.
 
 ## Data Flow
 
-1. **User Sign Up and Login**:
-   - Users sign up and log in, interacting with the MongoDB database to store and retrieve user details.
-   - Authentication is managed using JWTs validated by the Auth module.
-
-2. **Session Management**:
-   - Upon successful login, session information is handled by Redis, ensuring authenticated access to services.
-
-3. **File Handling**:
-   - Users can send files, which are uploaded to AWS S3.
-   - The file handling module generates download URLs that are sent back to the user.
-
-4. **Messaging**:
-   - Messages are published and subscribed to via Kafka topics.
-   - Both group and private chats utilize Kafka for real-time communication.
-   - Kafka stores message metadata and delivery statuses.
-
-5. **User Activity**:
-   - Any user activity updates their "last seen" timestamp in the MongoDB database.
+1. **User Sign Up and Login**: Users sign up and log in, interacting with MongoDB for storing and retrieving user details. Authentication is managed using JWTs validated by the Auth module.
+2. **Session Management**: Upon successful login, session information is managed by Redis.
+3. **File Handling**: Files are uploaded to AWS S3, and download URLs are generated and shared with users.
+4. **Messaging**: Messages are published and subscribed to via Kafka topics. Both group and private chats utilize Kafka for reliable message delivery. Kafka stores message metadata and delivery statuses.
+5. **User Activity**: Any user activity updates their "last seen" timestamp in MongoDB.
 
 ## Detailed Component Interactions
 
@@ -107,7 +56,7 @@ Handles real-time messaging using Kafka.
 1. User submits login credentials.
 2. The system retrieves user info linked to the email from MongoDB.
 3. The system matches the provided password hash with the stored hash.
-4. On success, a session is generated and stored in Redis, and a JWT is returned to the user.
+4. On success, a jwt session token is generated and stored in Redis, and is returned to the user.
 
 ### Session Handling
 1. Redis manages session states.
@@ -127,5 +76,21 @@ Handles real-time messaging using Kafka.
 ### Activity Tracking
 1. On any user activity, the "last seen" timestamp is updated in MongoDB.
 
+### Group APIs
+1. **Create Group**:
+   - User submits a request to create a group with a name and optional profile photo.
+   - The system assigns a unique UUID to the new group.
+   - Group information, including participants and admins, is stored in the MongoDB Groups collection.
+   
+2. **Fetch Group Info**:
+   - Retrieves group details from the MongoDB Groups collection using the group UUID.
+   
+3. **Modify Group Info**:
+   - Allows updating group details such as name, profile photo, and participants, but the group UUID cannot be modified.
+   
+4. **Delete Group**:
+   - Deletes a group from the system using the group UUID.
+
 ## Conclusion
-This high-level design ensures a robust and scalable chat application, leveraging modern technologies for real-time messaging, secure authentication, efficient session management, and reliable file handling. The use of MongoDB, Kafka, Redis, and AWS S3 provides a solid foundation for building a responsive and user-friendly chat platform.
+This high-level design ensures a robust and scalable chat application, leveraging WebSockets for real-time messaging, Kafka for reliable message delivery, Redis for efficient session management, MongoDB for data storage, and AWS S3 for file handling. This combination of technologies provides a solid foundation for building a responsive and user-friendly chat platform.
+
