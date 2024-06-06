@@ -2,19 +2,32 @@ package com.chatapp.source.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.List;
 
 @Document(collection = "user-info")
 public class UserProfile {
     @Id
     private String id;
-    private String username;
     private String uuid;
+    private String username;
+    private String hashedPassword;
     private String name;
     private String status;
     private String emailId;
     private String profilePhoto;
+    private String lastSeen;
+    private List<String> groups;
+    private List<String> contacts; 
 
     //Getters and Setters
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -23,12 +36,12 @@ public class UserProfile {
         this.username = username;
     }
 
-    public String getUuid() {
-        return uuid;
+    public String getHashedPassword() {
+        return hashedPassword;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setHashedPassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
     }
 
     public String getName() {
@@ -61,5 +74,29 @@ public class UserProfile {
 
     public void setProfilePhoto(String profilePhoto) {
         this.profilePhoto = profilePhoto;
+    }
+
+    public String getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(String lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
+    public List<String> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<String> groups) {
+        this.groups = groups;
+    }
+
+    public List<String> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<String> contacts) {
+        this.contacts = contacts;
     }
 }
