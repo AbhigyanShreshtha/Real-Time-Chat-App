@@ -10,8 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class UserProfileService {
@@ -83,5 +87,33 @@ public class UserProfileService {
             throw new RuntimeException("User profile not found");
         }
         return optionalUserProfile.get();
+    }
+
+    public UserProfile addContacts(String emailId, List<String> contacts) {
+    Optional<UserProfile> optionalUserProfile = mongoProfile.findByEmailId(emailId);
+        if (!optionalUserProfile.isPresent()) {
+            throw new RuntimeException("User profile not found");
+        }
+
+        UserProfile userProfile = optionalUserProfile.get();
+        Set<String> existingContactsSet = new HashSet<>(userProfile.getContacts());
+        existingContactsSet.addAll(contacts);
+        userProfile.setContacts(new ArrayList<>(existingContactsSet));
+
+        return mongoProfile.save(userProfile);
+    }
+
+    public UserProfile addGroups(String emailId, List<String> groups) {
+        Optional<UserProfile> optionalUserProfile = mongoProfile.findByEmailId(emailId);
+        if (!optionalUserProfile.isPresent()) {
+            throw new RuntimeException("User profile not found");
+        }
+
+        UserProfile userProfile = optionalUserProfile.get();
+        Set<String> existingGroupsSet = new HashSet<>(userProfile.getGroups());
+        existingGroupsSet.addAll(groups);
+        userProfile.setGroups(new ArrayList<>(existingGroupsSet));
+
+        return mongoProfile.save(userProfile);
     }
 }

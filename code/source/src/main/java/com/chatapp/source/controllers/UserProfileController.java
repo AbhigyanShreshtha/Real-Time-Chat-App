@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user-profile")
@@ -54,5 +55,19 @@ public class UserProfileController {
     @GetMapping("/get/{emailid}")
     public UserProfile getUserProfile(@PathVariable String emailid) {
         return userProfileService.getUserProfile(emailid);
+    }
+
+    @PutMapping("/modify-contacts/{emailId}")
+    public UserProfile addContacts(
+            @PathVariable String emailId,
+            @RequestBody List<String> contacts) {
+        return userProfileService.addContacts(emailId, contacts);
+    }
+
+    @PutMapping("/modify-groups/{emailId}")
+    public UserProfile addGroups(
+            @PathVariable String emailId,
+            @RequestBody List<String> groups) {
+        return userProfileService.addGroups(emailId, groups);
     }
 }
