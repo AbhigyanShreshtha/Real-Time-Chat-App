@@ -11,8 +11,8 @@ public class Groups {
     private String groupId;
     private String groupPhoto;
     private String about;
-    private List<String> participants;
-    private List<String> admins;
+    private List<String> participants;//list of uuids
+    private List<String> admins;//list of uuids
 
     // Getters and Setters
     public String getId() {

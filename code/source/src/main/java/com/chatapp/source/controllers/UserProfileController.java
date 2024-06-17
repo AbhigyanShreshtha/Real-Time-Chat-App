@@ -32,8 +32,9 @@ public class UserProfileController {
             @RequestPart("username") String username,
             @RequestPart("status") String status,
             @RequestPart("emailid") String emailid,
+            @RequestPart("password") String password,
             @RequestPart(value = "profilephoto", required = false) MultipartFile profilephoto) throws IOException {
-        return userProfileService.createUserProfile(username, name, status, emailid, profilephoto);
+        return userProfileService.createUserProfile(username, name, status, emailid, password, profilephoto);
     }
 
     @PutMapping("/modify/{emailid}")

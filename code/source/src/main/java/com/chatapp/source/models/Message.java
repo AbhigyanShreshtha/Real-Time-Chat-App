@@ -2,7 +2,7 @@ package com.chatapp.source.models;
 
 public class Message {
     private String sender;
-    private String recipient;
+    private String recipient;//recipient is topic, treating one on one as groups of two, with the uuid of the group of two being the "contact"
     private String messageBody;
     private String attachment;
     private String timestamp;
