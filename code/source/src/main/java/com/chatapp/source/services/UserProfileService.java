@@ -1,5 +1,7 @@
 package com.chatapp.source.services;
 
+import com.chatapp.source.models.Login;
+import com.chatapp.source.databases.mongo.MongoLogin;
 import com.chatapp.source.databases.s3.S3Uploader;
 import com.chatapp.source.helpers.base64.Base64Helper;
 import com.chatapp.source.helpers.hash.PasswordHelper;
@@ -24,13 +26,15 @@ public class UserProfileService {
     private final MongoProfile mongoProfile;
     private final S3Uploader s3Uploader;
     private final PasswordHelper passwordHelper;
+    private final MongoLogin mongoLogin;
 
     @Autowired
-    public UserProfileService(Base64Helper base64Helper, MongoProfile mongoProfile, S3Uploader s3Uploader, PasswordHelper passwordHelper) {
+    public UserProfileService(Base64Helper base64Helper, MongoProfile mongoProfile, S3Uploader s3Uploader, PasswordHelper passwordHelper, MongoLogin mongoLogin) {
         this.base64Helper = base64Helper;
         this.mongoProfile = mongoProfile;
         this.s3Uploader = s3Uploader;
         this.passwordHelper = passwordHelper;
+        this.mongoLogin = mongoLogin;
     }
 
     public UserProfile createUserProfile(String username, String name, String status, String emailid, String password, MultipartFile profilephoto) throws IOException {
@@ -46,6 +50,11 @@ public class UserProfileService {
         userProfile.setEmailId(emailid);
         userProfile.setHashedPassword(hashedPassword);
         userProfile.setProfilePhoto(base64Photo);
+
+        Login login = new Login();
+        login.setUsername(emailid);
+        login.setHashedPassword(hashedPassword);
+        mongoLogin.save(login);
 
         try {
             return mongoProfile.save(userProfile);

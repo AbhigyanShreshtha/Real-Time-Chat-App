@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Login {
     @Id
     private String id;
-    private String username;
+    private String username;//email id to ensure uniqueness that is also available to the end user unlike uuid that is unique but used in our internal purpose
     private String hashedPassword;
 
     // Getters and Setters

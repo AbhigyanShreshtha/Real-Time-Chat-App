@@ -27,19 +27,6 @@ public class LoginService {
         this.redisTemplate = redisTemplate;
     }
 
-    public Login signup(String username, String password) {
-        if (mongo.findByUsername(username).isPresent()) {
-            throw new RuntimeException("Username already exists");
-        }
-
-        String hashedPassword = passwordHelper.hashPassword(password);
-        Login user = new Login();
-        user.setUsername(username);
-        user.setHashedPassword(hashedPassword);
-
-        return mongo.save(user);
-    }
-
     public void changePassword(String username, String currentPassword, String newPassword) {
         Optional<Login> optionalUser = mongo.findByUsername(username);
         if (!optionalUser.isPresent()) {

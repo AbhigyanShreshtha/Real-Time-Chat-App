@@ -15,17 +15,6 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    public static class SignupRequest {
-        public String username;
-        public String password;
-    }
-
-    @PostMapping("/signup")
-    public String signup(@RequestBody SignupRequest req) {
-        loginService.signup(req.username, req.password);
-        return "User signed up successfully";
-    }
-
     public static class ChangePasswordRequest {
         public String username;
         public String currentPassword;
