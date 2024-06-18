@@ -37,6 +37,11 @@ public class UserProfileService {
         this.mongoLogin = mongoLogin;
     }
 
+    public UserProfile getUserProfileByEmail(String emailId) {
+        Optional<UserProfile> optionalUserProfile = mongoProfile.findByEmailId(emailId);
+        return optionalUserProfile.orElse(null);
+    }
+
     public UserProfile createUserProfile(String username, String name, String status, String emailid, String password, MultipartFile profilephoto) throws IOException {
         String uuid = UUID.randomUUID().toString();
         String base64Photo = base64Helper.encodeFileToBase64(profilephoto);

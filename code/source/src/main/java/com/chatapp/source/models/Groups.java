@@ -12,7 +12,7 @@ public class Groups {
     private String groupPhoto;
     private String about;
     private List<String> participants;//list of uuids
-    private List<String> admins;//list of uuids
+    private List<String> admins;//list of uuids, initial creator is the admin and only admins can modify this
 
     // Getters and Setters
     public String getId() {
